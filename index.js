@@ -5,6 +5,30 @@ const server = express();
 server.use(express.json());
 
 const projects = [];
+let numberOfRequests = 0;
+
+//Middleware que checa se o projeto existe
+function checkProjectExists(req, res, next) {
+  const { id } = req.params;
+  const project = projects.find(p => p.id == id);
+
+  if (!project) {
+    return res.status(400).json({ error: 'Project not found' });
+  }
+
+  return next();
+}
+
+//Middleware que dá log no número de requisições
+function logRequests(req, res, next) {
+  numberOfRequests++;
+
+  console.log(`Número de requisições: ${numberOfRequests}`);
+
+  return next();
+}
+
+server.use(logRequests);
 
 //mostrar todos
 server.get('/projects', (req, res) => {
